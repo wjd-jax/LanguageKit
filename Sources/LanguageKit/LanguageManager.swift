@@ -14,7 +14,7 @@ public class LanguageManager {
     private static let defautLanguage = "en"
 
     init() {
-        currentLanguage = LanguageManager.storedCurrentLanguage ?? LanguageManager.defautLanguage
+        currentLanguage = LanguageManager.storedCurrentLanguage ?? LanguageManager.preferredLanguage
     }
 
     /// 可用的语言
@@ -38,10 +38,24 @@ public class LanguageManager {
     public func displayName(language: String) -> String? {
         (currentLocale as NSLocale).displayName(forKey: NSLocale.Key.identifier, value: language)?.capitalized
     }
+
     /// 原始语言显示名称
     public static func nativeDisplayName(language: String) -> String? {
         let locale = NSLocale(localeIdentifier: language)
         return locale.displayName(forKey: NSLocale.Key.identifier, value: language)?.capitalized
+    }
+
+    /// 推荐语言
+    private static var preferredLanguage: String {
+        guard let langStr = Locale.current.languageCode else {
+            return defautLanguage
+        }
+        // 比如手机获得的code中国是zh 但是国际化文件是 zh-Hans
+        let num = availableLanguages.filter { $0.contains(langStr) }
+        if !num.isEmpty {
+            return num.first ?? defautLanguage
+        }
+        return defautLanguage
     }
 }
 
@@ -55,11 +69,6 @@ extension LanguageManager {
     /// 获取存设置的语言
     private static var storedCurrentLanguage: String? {
         UserDefaults.standard.value(forKey: userDefaultsKey) as? String
-    }
-
-    /// 推荐语言
-    private static var preferredLanguage: String? {
-        Bundle.main.preferredLocalizations.first { availableLanguages.contains($0) }
     }
 }
 
@@ -84,4 +93,3 @@ extension LanguageManager {
         String(format: localize(string: string, bundle: bundle), locale: currentLocale, arguments: arguments)
     }
 }
-
