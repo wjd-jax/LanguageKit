@@ -51,7 +51,7 @@ public class LanguageManager {
             return defautLanguage
         }
         // 比如手机获得的code中国是zh 但是国际化文件是 zh-Hans
-        let num = availableLanguages.filter { $0.contains(langStr) }
+        let num = availableLanguages.filter { $0.hasPrefix(langStr) }
         if !num.isEmpty {
             return num.first ?? defautLanguage
         }
